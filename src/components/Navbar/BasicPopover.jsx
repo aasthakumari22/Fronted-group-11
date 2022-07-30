@@ -1,8 +1,12 @@
-import * as React from 'react';
-import { Typography, Button, Popover } from '@material-ui/core';
+import React, { useRef } from 'react';
+import { TextField, InputAdornment, Button, Popover } from '@material-ui/core';
+import { useNavigate } from 'react-router-dom';
 
 export default function BasicPopover({ loc }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const lat = useRef();
+  const lon = useRef();
+  const navigate = useNavigate();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -14,6 +18,19 @@ export default function BasicPopover({ loc }) {
 
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
+
+  const saveLocation = () => {
+    if (lat.current.value && !isNaN(lat.current.value) && lon.current.value && !isNaN(lon.current.value)) {
+      localStorage.setItem('location', JSON.stringify({
+        latitude: lat.current.value,
+        longitude: lon.current.value
+      }))
+      handleClose();
+      navigate('/', {replace: true});
+    } else {
+      alert("Enter valid location")
+    }
+  }
 
   return (
     <div>
@@ -30,7 +47,13 @@ export default function BasicPopover({ loc }) {
           horizontal: 'left',
         }}
       >
-        <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
+        <TextField inputRef={lat} defaultValue={loc.latitude} InputProps={{
+            disableUnderline: true, startAdornment: <InputAdornment position="start"><p>Latitude</p></InputAdornment>,
+          }} />
+          <TextField inputRef={lon} defaultValue={loc.longitude} InputProps={{
+            disableUnderline: true, startAdornment: <InputAdornment position="start"><div>Longitude</div></InputAdornment>,
+            endAdornment: <InputAdornment position="end"><Button variant="contained" disableElevation size="large" onClick={saveLocation}>Go</Button></InputAdornment>
+          }} />
       </Popover>
     </div>
   );

@@ -1,41 +1,44 @@
 import { Button, TextField, InputAdornment } from '@material-ui/core';
-import React, { useState } from 'react'
+import React, { useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import useStyles from './styles';
 
-const LandingPage = ({ user }) => {
-  const [location, setLocation] = useState({ latitude: '', longitude: '' });
+const LandingPage = () => {
   const classes = useStyles();
+  const lat = useRef();
+  const lon = useRef();
+  const navigate = useNavigate();
 
   function saveLocation() {
-    localStorage.setItem('location', location);
+    if (lat.current.value && !isNaN(lat.current.value) && lon.current.value && !isNaN(lon.current.value)) {
+      localStorage.setItem('location', JSON.stringify({
+        latitude: lat.current.value,
+        longitude: lon.current.value
+      }))
+      navigate('/getFeed', {replace: true});
+    } else {
+      alert("Enter valid location")
+    }
   }
 
-  const LeftPane = () => (
-    <div>
-      <div className={classes.box}>
-        <TextField InputProps={{
-            disableUnderline: true, startAdornment: <InputAdornment position="start"><p className={classes.locationLabel}>Longitude</p></InputAdornment>,
-          }} />
-          <TextField InputProps={{
-            disableUnderline: true, startAdornment: <InputAdornment position="start"><div className={classes.locationLabel}>Latitude</div></InputAdornment>,
-          }} />
-      </div>
-      <Button variant='contained' disableElevation size='large'>Go</Button>
-    </div>
-  )
+  useEffect(() => {
+    if (localStorage.getItem('location')) {
+      navigate('/getFeed', {replace: true});
+    }
+  }, []);
 
   return (
     <div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100vh'}}>
       <div justifyContent="center">
         <h1 style={{textAlign:'center'}}>F-Delivery</h1>
         <div className={classes.box}> 
-          <TextField InputProps={{
-            disableUnderline: true, startAdornment: <InputAdornment position="start"><p className={classes.locationLabel}>Longitude</p></InputAdornment>,
+          <TextField inputRef={lat} InputProps={{
+            disableUnderline: true, startAdornment: <InputAdornment position="start"><p className={classes.locationLabel}>Latitude</p></InputAdornment>,
           }} />
-          <TextField InputProps={{
-            disableUnderline: true, startAdornment: <InputAdornment position="start"><div className={classes.locationLabel}>Latitude</div></InputAdornment>,
-            endAdornment: <InputAdornment position="end"><Button variant="contained" disableElevation size="large">Go</Button></InputAdornment>
+          <TextField inputRef={lon} InputProps={{
+            disableUnderline: true, startAdornment: <InputAdornment position="start"><div className={classes.locationLabel}>Longitude</div></InputAdornment>,
+            endAdornment: <InputAdornment position="end"><Button variant="contained" disableElevation size="large" onClick={saveLocation}>Go</Button></InputAdornment>
           }} />
        </div>
       </div>

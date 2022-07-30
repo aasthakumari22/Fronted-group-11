@@ -10,7 +10,7 @@ const Item = ({ product, onAddToCart }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleAddToCart = () => onAddToCart(product.id, product, 1);
+  const handleAddToCart = () => onAddToCart(product.itemId, product, 1);
 
   return (
     <Card className={classes.root}>

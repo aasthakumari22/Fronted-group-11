@@ -5,12 +5,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import useStyles from './styles';
 
-const Product = ({ product, onAddToCart }) => {
+const Product = ({ product }) => {
   const classes = useStyles();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const handleAddToCart = () => onAddToCart(product.id, product, 1);
 
   return (
     <Link onClick={() => {

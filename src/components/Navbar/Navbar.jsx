@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, IconButton, Badge, MenuItem, Menu, Typography, Button, Box } from '@material-ui/core';
-import { ShoppingCart, AccountBox } from '@material-ui/icons';
+import { ShoppingCart, AccountBox, LocalGasStation } from '@material-ui/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import BasicPopover from './BasicPopover';
@@ -51,6 +51,14 @@ const PrimarySearchAppBar = ({ user, loc, totalItems }) => {
     }
   }
 
+  const renderPopover = () => {
+    let loc = JSON.parse(localStorage.getItem('location'));
+    if (loc) {
+      return (<BasicPopover loc={loc}/>);
+    }
+    return (<></>);
+  }
+
   return (
     <>
       <AppBar position="fixed" className={classes.appBar} color="inherit">
@@ -58,10 +66,10 @@ const PrimarySearchAppBar = ({ user, loc, totalItems }) => {
           <Typography component={Link} to="/" variant="h6" className={classes.title} color="inherit">
             <img src={logo} alt="commerce.js" height="25px" className={classes.image} /> F-Delivery
           </Typography>
-          <BasicPopover loc={loc}/>
+          {renderPopover()}
           <div className={classes.grow} />
           {renderButton()}
-          {(location.pathname === '/' || location.pathname === '/menu') && (
+          {(location.pathname === '/getFeed' || location.pathname === '/menu') && (
           <div className={classes.button}>
             <IconButton component={Link} to="/cart" aria-label="Show cart items" color="inherit">
               <Badge badgeContent={totalItems} color="secondary">

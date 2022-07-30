@@ -5,14 +5,14 @@ import { BrowserRouter as Router, Routes as Switch, Route, Routes} from 'react-r
 import { Products, Navbar, LandingPage, Login, AdminPage, RestaurantPage, Cart, Items } from './components';
 
 import Sidebar from './components/Admin/Sidebar.jsx';
-import Dashboard from './pages/Dashboard.jsx';
-import Users from './pages/Users.jsx';
-import Restaurant from './pages/Restaurant.jsx';
-import Orders from './pages/Orders.jsx';
+import Dashboard from './components/pages/Dashboard.jsx';
+import Users from './components/pages/Users.jsx';
+import Restaurant from './components/pages/Restaurant.jsx';
+import Orders from './components/pages/Orders.jsx';
 
 const App = () => {
-  const [user, setUser] = useState();
-  const [location, setLocation] = useState({latitude:12, longitude: 12});
+  const [user, setUser] = useState({name: 'Kunal J', role:'customer'});
+  const [location, setLocation] = useState();
   const [cart, setCart] = useState([]);
 
   const handleUpdateCartQty = (itemId, quantity) => {
@@ -24,9 +24,9 @@ const App = () => {
     var i = existingCart.length;
     while(i--){
       if( existingCart[i] 
-          && existingCart[i]['id'] === itemId ) { 
+          && existingCart[i].itemId === itemId ) { 
 
-          existingCart[i]['quantity'] = quantity;
+          existingCart[i].quantity = quantity;
 
       }
    }
@@ -40,7 +40,7 @@ const App = () => {
     var i = existingCart.length;
     while(i--){
        if( existingCart[i] 
-           && existingCart[i]['id'] === itemId ) { 
+           && existingCart[i].itemId === itemId ) { 
 
            existingCart.splice(i,1);
 
@@ -56,11 +56,17 @@ const App = () => {
   };
 
   const handleAddToCart = (productId, product, quantity) => {
-    var restaurant = localStorage.getItem('restaurantId');
-    console.log('adding to cart');
+    console.log(productId, product, quantity);
     var existingCart = JSON.parse(localStorage.getItem('cart'));
     if (existingCart == null) existingCart = [];
-    existingCart.push({'id': productId, 'item': product,'quantity': quantity});
+    for(let item of existingCart) {
+      if (item.itemId === productId) {
+        console.log('updating quantity');
+        handleUpdateCartQty(productId, item.quantity + 1);
+        return;
+      }
+    }
+    existingCart.push({'itemId': productId, 'item': product,'quantity': quantity});
     localStorage.setItem('cart', JSON.stringify(existingCart));
     setCart(existingCart);
   };
@@ -81,6 +87,7 @@ const App = () => {
     if (savedLocation) {
       const loc = JSON.parse(savedLocation);
       setLocation(loc);
+      console.log('fetching location', loc);
     }
 
     fetchCart();
@@ -91,30 +98,45 @@ const App = () => {
     return cart.length;
   }
 
-  return (
-    <Router>
-      <div style={{ display: 'flex' }}>
-        <CssBaseline />
-        <Navbar user={user} loc={location} totalItems={getCartSize()} />
-        <Switch>
-          <Route exact path="/" element={<Products />} />
-          <Route exact path="/login" element={<Login /> } />
-          <Route exact path='/menu' element={<Items onAddToCart={handleAddToCart}/>} />
-          <Route exact path="/cart" element={<Cart cart={cart} onUpdateCartQty={handleUpdateCartQty} onRemoveFromCart={handleRemoveFromCart} onEmptyCart={handleEmptyCart} />} />
-          <Route path="/checkout" exact element={<></>} />
-        </Switch>
-        <Sidebar>
-        <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/users" element={<Users/>} />
-        <Route path="/restaurant" element={<Restaurant/>} />
-        <Route path="/orders" element={<Orders />} />
-        </Routes>
-        </Sidebar>
-      </div>
-    </Router>
-    
-  )
-}
+    if (user) {
+      switch(user.role) {
+        case 'admin':
+          return (
+            <Router>
+              <div style={{ display: 'flex' }}>
+                <CssBaseline />
+                <Sidebar>
+                <Routes>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/users" element={<Users/>} />
+                <Route path="/restaurant" element={<Restaurant/>} />
+                <Route path="/orders" element={<Orders />} />
+                </Routes>
+                </Sidebar>
+              </div>
+            </Router> 
+          )
+        
+        case 'manager':
+          return <RestaurantPage />
+      }
+    }
+    return (
+      <Router>
+        <div style={{ display: 'flex' }}>
+          <CssBaseline />
+          <Navbar user={user} loc={location} totalItems={getCartSize()} />
+          <Switch>
+            <Route exact path="/" element={<LandingPage />} />
+            <Route exact path="/getFeed" element={<Products loc={location}/>} />
+            <Route exact path="/login" element={<Login /> } />
+            <Route exact path='/menu' element={<Items onAddToCart={handleAddToCart}/>} />
+            <Route exact path="/cart" element={<Cart cart={cart} onUpdateCartQty={handleUpdateCartQty} onRemoveFromCart={handleRemoveFromCart} onEmptyCart={handleEmptyCart} />} />
+            <Route path="/checkout" exact element={<></>} />
+          </Switch>
+        </div>
+      </Router> 
+    )
+  }
 
 export default App

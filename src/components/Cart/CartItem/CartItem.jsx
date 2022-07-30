@@ -15,18 +15,18 @@ const CartItem = ({ item, onUpdateCartQty, onRemoveFromCart }) => {
 
   return (
     <Card className="cart-item">
-      <CardMedia image={item.item.image} alt={item.item.title} className={classes.media} />
+      <CardMedia image={item.item.url} alt={item.item.name} className={classes.media} />
       <CardContent className={classes.cardContent}>
-        <Typography noWrap variant="h4">{item.item.title}</Typography>
-        <Typography noWrap variant="h5">{item.item.title}</Typography>
+        <Typography noWrap variant="h4">{item.item.name}</Typography>
+        <Typography noWrap variant="h5">{item.item.price}</Typography>
       </CardContent>
       <CardActions className={classes.cardActions}>
         <div className={classes.buttons}>
-          <Button type="button" size="small" onClick={() => handleUpdateCartQty(item.id, item.quantity - 1)}>-</Button>
+          <Button type="button" size="small" onClick={() => handleUpdateCartQty(item.item.itemId, item.quantity - 1)}>-</Button>
           <Typography>&nbsp;{item.quantity}&nbsp;</Typography>
-          <Button type="button" size="small" onClick={() => handleUpdateCartQty(item.id, item.quantity + 1)}>+</Button>
+          <Button type="button" size="small" onClick={() => handleUpdateCartQty(item.item.itemId, item.quantity + 1)}>+</Button>
         </div>
-        <Button variant="contained" type="button" color="secondary" onClick={() => handleRemoveFromCart(item.id)}>Remove</Button>
+        <Button variant="contained" type="button" color="secondary" onClick={() => handleRemoveFromCart(item.item.itemId)}>Remove</Button>
       </CardActions>
     </Card>
   );
